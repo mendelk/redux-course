@@ -90,31 +90,20 @@ const Link = ({ active, onClick, children}) => {
   return <a href="#" onClick={onClick}>{children}</a>;
 };
 
-class FilterLink extends React.Component {
-  componentDidMount () {
-    this.unsubscribe = this.context.store.subscribe(() => this.forceUpdate());
-  }
-  componentWillUnmount () {
-    this.unsubscribe()
-  }
-  render () {
-    const props = this.props;
-    const {store} = this.context;
-    const state = store.getState();
-    return (
-      <Link
-        active={props.visibilityFilter === state.visibilityFilter}
-        onClick={() => store.dispatch({
-          type: 'SET_VISIBILITY_FILTER',
-          filter: props.filter
-        })}
-      >{props.children}</Link>
-    ) 
+const mapStateToLinksProps = (state, props) => {
+  return {
+    active: props.visibilityFilter === state.visibilityFilter
   }
 }
-FilterLink.contextTypes = {
-  store: React.PropTypes.object
+const mapDispatchToLinksProps = (dispatch, props) => {
+  return {
+    onClick: () => dispatch({
+      type: 'SET_VISIBILITY_FILTER',
+      filter: props.filter
+    })
+  }
 }
+const FilterLink = connect(mapStateToLinksProps, mapDispatchToLinksProps)(Link)
 
 let AddTodo = ({ dispatch }) => {
   let input;
