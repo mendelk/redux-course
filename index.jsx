@@ -2,6 +2,7 @@ require('./node_modules/bootstrap/dist/css/bootstrap.min.css');
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { createStore, combineReducers } from 'redux';
+import { Provider } from 'react-redux';
 
 // const combineReducers = (reducers) => {
 //   return (state = {}, action) => {
@@ -174,20 +175,6 @@ const TodoApp = () => {
       <Footer />
     </div>
   );
-}
-
-class Provider extends React.Component {
-  getChildContext () {
-    return {
-      store: this.props.store
-    }
-  }
-  render () {
-    return this.props.children;
-  }
-}
-Provider.childContextTypes = {
-  store: React.PropTypes.object
 }
 
 const todoApp = combineReducers({ todos, visibilityFilter });
