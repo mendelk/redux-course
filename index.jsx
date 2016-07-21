@@ -121,17 +121,17 @@ let AddTodo = ({ dispatch }) => {
 }
 AddTodo = connect()(AddTodo);
 
-const mapStateToProps = (state) => {
+const mapStateToTodoListProps = (state) => {
   return {
     todos: getVisibleTodos(state.todos, state.visibilityFilter)
   }
 }
-const mapDispatchToProps = (dispatch) => {
+const mapDispatchToTodoListProps = (dispatch) => {
   return {
     onTodoClick: id => dispatch({type: 'TOGGLE_TODO', id })
   }
 }
-const VisibleTodoList = connect(mapStateToProps, mapDispatchToProps)(TodoList)
+const VisibleTodoList = connect(mapStateToTodoListProps, mapDispatchToTodoListProps)(TodoList)
 
 const Footer = () => {
   return (
