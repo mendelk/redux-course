@@ -82,7 +82,40 @@ const TodoList = ({ todos, onTodoClick }) => {
   );
 }
 
-const AddTodo = ({ store }) => {
+const Link = ({ active, onClick, children}) => {
+  if (active) {
+    return <span>{children}</span>;
+  }
+  return <a href="#" onClick={onClick}>{children}</a>;
+};
+
+class FilterLink extends React.Component {
+  componentDidMount () {
+    this.unsubscribe = this.context.store.subscribe(() => this.forceUpdate());
+  }
+  componentWillUnmount () {
+    this.unsubscribe()
+  }
+  render () {
+    const props = this.props;
+    const {store} = this.context;
+    const state = store.getState();
+    return (
+      <Link
+        active={props.visibilityFilter === state.visibilityFilter}
+        onClick={() => store.dispatch({
+          type: 'SET_VISIBILITY_FILTER',
+          filter: props.filter
+        })}
+      >{props.children}</Link>
+    ) 
+  }
+}
+FilterLink.contextTypes = {
+  store: React.PropTypes.object
+}
+
+const AddTodo = (props, { store }) => {
   let input;
   return (
     <div>
@@ -96,46 +129,19 @@ const AddTodo = ({ store }) => {
     </div>
   )
 }
-
-const Link = ({ active, onClick, children}) => {
-  if (active) {
-    return <span>{children}</span>;
-  }
-  return <a href="#" onClick={onClick}>{children}</a>;
-};
-
-class FilterLink extends React.Component {
-  componentDidMount () {
-    this.unsubscribe = this.props.store.subscribe(() => this.forceUpdate());
-  }
-  componentWillUnmount () {
-    this.unsubscribe()
-  }
-  render () {
-    const props = this.props;
-    const {store} = props;
-    const state = store.getState();
-    return (
-      <Link
-        active={props.visibilityFilter === state.visibilityFilter}
-        onClick={() => store.dispatch({
-          type: 'SET_VISIBILITY_FILTER',
-          filter: props.filter
-        })}
-      >{props.children}</Link>
-    ) 
-  }
+AddTodo.contextTypes = {
+  store: React.PropTypes.object
 }
 
 class VisibleTodoList extends React.Component {
   componentDidMount () {
-    this.unsubscribe = this.props.store.subscribe(() => this.forceUpdate());
+    this.unsubscribe = this.context.store.subscribe(() => this.forceUpdate());
   }
   componentWillUnmount () {
     this.unsubscribe()
   }
   render () {
-    const { store } = this.props;
+    const { store } = this.context;
     const state = store.getState();
     return (
       <TodoList
@@ -145,31 +151,50 @@ class VisibleTodoList extends React.Component {
     )
   }
 }
+VisibleTodoList.contextTypes = {
+  store: React.PropTypes.object
+}
 
 
-const Footer = ({ store }) => {
+const Footer = () => {
   return (
     <p>
-      <FilterLink store={store} filter='SHOW_ALL'>All</FilterLink>
-      <FilterLink store={store} filter='SHOW_ACTIVE'>Active</FilterLink>
-      <FilterLink store={store} filter='SHOW_COMPLETED'>Completed</FilterLink>
+      <FilterLink filter='SHOW_ALL'>All</FilterLink>
+      <FilterLink filter='SHOW_ACTIVE'>Active</FilterLink>
+      <FilterLink filter='SHOW_COMPLETED'>Completed</FilterLink>
     </p>
   );
 }
 
-const TodoApp = ({ store }) => {
+const TodoApp = () => {
   return (
     <div>
-      <AddTodo store={store} />
-      <VisibleTodoList store={store} />
-      <Footer store={store} />
+      <AddTodo />
+      <VisibleTodoList />
+      <Footer />
     </div>
   );
+}
+
+class Provider extends React.Component {
+  getChildContext () {
+    return {
+      store: this.props.store
+    }
+  }
+  render () {
+    return this.props.children;
+  }
+}
+Provider.childContextTypes = {
+  store: React.PropTypes.object
 }
 
 const todoApp = combineReducers({ todos, visibilityFilter });
 
 ReactDOM.render(
-  <TodoApp store={createStore(todoApp)} />,
+  <Provider store={createStore(todoApp)}>
+    <TodoApp />
+  </Provider>,
   document.querySelector('#myApp')
 );
