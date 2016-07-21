@@ -2,7 +2,7 @@ require('./node_modules/bootstrap/dist/css/bootstrap.min.css');
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { createStore, combineReducers } from 'redux';
-import { Provider } from 'react-redux';
+import { Provider, connect } from 'react-redux';
 
 // const combineReducers = (reducers) => {
 //   return (state = {}, action) => {
@@ -134,28 +134,17 @@ AddTodo.contextTypes = {
   store: React.PropTypes.object
 }
 
-class VisibleTodoList extends React.Component {
-  componentDidMount () {
-    this.unsubscribe = this.context.store.subscribe(() => this.forceUpdate());
-  }
-  componentWillUnmount () {
-    this.unsubscribe()
-  }
-  render () {
-    const { store } = this.context;
-    const state = store.getState();
-    return (
-      <TodoList
-        todos={getVisibleTodos(state.todos, state.visibilityFilter)}
-        onTodoClick={id => store.dispatch({type: 'TOGGLE_TODO', id })}
-      />
-    )
+const mapStateToProps = (state) => {
+  return {
+    todos: getVisibleTodos(state.todos, state.visibilityFilter)
   }
 }
-VisibleTodoList.contextTypes = {
-  store: React.PropTypes.object
+const mapDispatchToProps = (dispatch) => {
+  return {
+    onTodoClick: id => dispatch({type: 'TOGGLE_TODO', id })
+  }
 }
-
+const VisibleTodoList = connect(mapStateToProps, mapDispatchToProps)(TodoList)
 
 const Footer = () => {
   return (
