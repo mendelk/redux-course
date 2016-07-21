@@ -116,13 +116,13 @@ FilterLink.contextTypes = {
   store: React.PropTypes.object
 }
 
-const AddTodo = (props, { store }) => {
+let AddTodo = ({ dispatch }) => {
   let input;
   return (
     <div>
       <input ref={node => input = node} />
       <button onClick={() => {
-        store.dispatch({type: 'ADD_TODO', text: input.value, id: nextTodoId++})
+        dispatch({type: 'ADD_TODO', text: input.value, id: nextTodoId++})
         input.value = '';
       }}>
         Add Todo
@@ -130,9 +130,7 @@ const AddTodo = (props, { store }) => {
     </div>
   )
 }
-AddTodo.contextTypes = {
-  store: React.PropTypes.object
-}
+AddTodo = connect()(AddTodo);
 
 const mapStateToProps = (state) => {
   return {
